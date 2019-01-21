@@ -1,4 +1,4 @@
-﻿//Requires zxcvbn.js and Bootstrap
+//Requires zxcvbn.js and Bootstrap
 (function ($) {
 
 	$.fn.zxcvbnProgressBar = function (options) {
@@ -7,6 +7,7 @@
 		var settings = $.extend({
 			passwordInput: '#Password',
 			userInputs: [],
+			userInputNames: [],
 			ratings: ["Very weak", "Weak", "OK", "Strong", "Very strong"],
 			//all progress bar classes removed before adding score specific css class
 			allProgressBarClasses: "progress-bar-danger progress-bar-warning progress-bar-success progress-bar-striped active",
@@ -32,7 +33,17 @@
 			var progressBar = settings.progressBar;
 			var password = $(settings.passwordInput).val();
 			if (password) {
-				var result = zxcvbn(password, settings.userInputs);
+				var userFormInputs = [];
+				settings.userInputNames.forEach(name => {
+					var input = $(settings.passwordInput).parent('form').find('input[name="'+name+'"]').first();
+					if(input.length && input.val()) {
+						userFormInputs.push(input.val());
+					}
+				});
+
+				var uInputs = settings.userInputs.concat(userFormInputs);
+
+				var result = zxcvbn(password, uInputs);
 				//result.score: 0, 1, 2, 3 or 4 - if crack time is less than 10**2, 10**4, 10**6, 10**8, Infinity.
 				var scorePercentage = (result.score + 1) * 20;
 				$(progressBar).css('width', scorePercentage + '%');
@@ -62,11 +73,15 @@
 					$(progressBar).removeClass(settings.allProgressBarClasses).addClass(settings.progressBarClass4);
 					$(progressBar).html(settings.ratings[4]);
 				}
+
+				$(settings.passwordInput).data('pwquality', result.score);
 			}
 			else {
 				$(progressBar).css('width', '0%');
 				$(progressBar).removeClass(settings.allProgressBarClasses).addClass(settings.progressBarClass0);
 				$(progressBar).html('');
+
+				$(settings.passwordInput).data('pwquality', '');
 			}
 		}
 	};
