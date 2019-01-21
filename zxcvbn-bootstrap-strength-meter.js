@@ -35,7 +35,7 @@
 			if (password) {
 				var userFormInputs = [];
 				settings.userInputNames.forEach(name => {
-					var input = $(settings.passwordInput).parent('form').find('input[name="'+name+'"]').first();
+					var input = $('input[name="'+name+'"]').first();
 					if(input.length && input.val()) {
 						userFormInputs.push(input.val());
 					}
